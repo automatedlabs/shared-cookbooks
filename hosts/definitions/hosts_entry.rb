@@ -42,7 +42,7 @@ define :hosts_entry, :ip, :aliases => [], :comment => "" do
         t = template "/etc/aliases" do
             source "hosts.erb"
             cookbook "hosts"
-            variables({:entries => [], :local => hosts_local })
+            variables({:entries => [], :hostslocal => hosts_local })
         end
     end
 
