@@ -5,6 +5,6 @@
 127.0.0.1	localhost.localdomain	localhost
 <%= node[:ipaddress] %>	<%= node[:fqdn] %>	<%= node[:hostname] %> # Autogenerate from node data
 <% for entry in @entries -%>
-<%= entry[:ip] %>	<%= entry[:fqdn] %>	<%= entry[:aliases].join(" ") %><%= " # #{entry[:comment}" if entry[:comment] %>
+<%= entry[:ip] %>	<%= entry[:fqdn] %>	<%= entry[:aliases].join(" ") %><%= " # #{entry[:comment]}" if entry[:comment] %>
 <% end -%>
 <% @hostslocal %> 
