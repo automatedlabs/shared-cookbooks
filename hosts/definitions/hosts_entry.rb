@@ -20,7 +20,7 @@
 # THE SOFTWARE.
 
 
-define :hosts_entry, :ip, :aliases => [], :comment => "" do
+define :hosts_entry, :ip => "", :aliases => [], :comment => "" do
  
     tl = cookbook_file "/etc/hosts.local" do
         owner "root"
