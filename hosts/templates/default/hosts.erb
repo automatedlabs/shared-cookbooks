@@ -7,4 +7,4 @@
 <% for entry in @entries -%>
 <%= entry[:ip] %>	<%= entry[:fqdn] %>	<%= entry[:aliases].join(" ") %><%= " # #{entry[:comment]}" if entry[:comment] %>
 <% end -%>
-<% @hostslocal %> 
+<%= @localdata %>
