@@ -37,12 +37,12 @@ define :hosts_entry, :ip => "", :aliases => [], :comment => "" do
         t = resources(:template => "/etc/aliases")
     rescue Chef::Exceptions::ResourceNotFound
         File.open("/etc/hosts.local", "r") do |f|
-            hosts_local = f.read
+            localdata = f.read
         end        
         t = template "/etc/aliases" do
             source "hosts.erb"
             cookbook "hosts"
-            variables({:entries => [], :local => hosts_local })
+            variables({:entries => [], :local => localdata })
         end
     end
 
