@@ -34,15 +34,15 @@ define :hosts_entry, :ip => "", :aliases => [], :comment => "" do
 
     t = nil
     begin
-        t = resources(:template => "/etc/aliases")
+        t = resources(:template => "/etc/hosts")
     rescue Chef::Exceptions::ResourceNotFound
-        File.open("/etc/hosts.local", "r") do |f|
-            localdata = f.read
-        end        
-        t = template "/etc/aliases" do
+        t = template "/etc/hosts" do
+            mode 0644
+            owner "root"
+            group "root"
             source "hosts.erb"
             cookbook "hosts"
-            variables({:entries => [], :local => localdata })
+            variables(:entries => [], :localdata => IO.read("/etc/hosts.local") )
         end
     end
 
