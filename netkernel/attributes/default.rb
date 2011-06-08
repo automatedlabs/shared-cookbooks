@@ -1,6 +1,11 @@
 default[:netkernel][:version] = "4.1.1"
 default[:netkernel][:install_url] = "http://apposite.netkernel.org/dist/1060-NetKernel-SE/1060-NetKernel-SE-4.1.1.jar"
 
+default[:netkernel][:frontend][:port] = 8080
+
+default[:netkernel][:backend][:address] = "localhost"
+default[:netkernel][:backend][:port] = 1060
+
 # PER INSTALL SETTINGS
 # java options... split into separate params?
 default[:netkernel][:java_opts] = "-Xmx128m -Xms128m -XX:SoftRefLRUPolicyMSPerMB=100"
