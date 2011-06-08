@@ -24,9 +24,7 @@
 # THE SOFTWARE.
 #
 
-if node.attribute?('java') and node.java.attribute?('java_home') do
-    # TODO: Setup NK
-else
-    Chef::Log.error("NetKernel installation skipped. Java not installed (use opscode cb)")
-end
+include_recipe "java"
+
+# TODO: Setup NK
 
