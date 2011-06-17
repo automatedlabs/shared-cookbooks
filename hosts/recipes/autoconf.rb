@@ -30,30 +30,18 @@ hosts_from_server = search(:node, "hostname:[* TO *] AND role:#{node[:app_enviro
 entries = []
 hosts_from_server.each do |host|
   entry = {:aliases => [host[:hostname]], :fqdn => host[:fqdn], :comment => 'autoconf'}
+  #cloud based, seems ohai 0.6.4 has a 'cloud' flat info, no per-provider section
+  #take first private. Change it if you want something else
   if host['cloud']
-    provider = host['could']['provider']
-    if provider == 'rackspace'
-      entry[:ip] = host[:rackspace][:private_ip]
-      entries << entry
-    end
-    #todo ec2, slicehost, etc...
+    entry[:ip] = host['cloud']['private_ips'][0]
+    entries << entry
   end
 end
 
-cookbook_file "/etc/hosts.local" do
-  source "hosts.local"
-  owner "root"
-  group "root"
-  mode "0644"
-  action :create_if_missing
-end
-
-template "/etc/hosts" do
-  source "hosts.erb"
-  owner "root"
-  group "root"
-  mode "0644"
-  variables(
-      :entries => entries, :localdata => IO.read("/etc/hosts.local")
-  )
+entries.each do |entry|
+  hosts_entry entry[:fqdn] do
+    ip entry[:ip]
+    aliases entry[:aliases]
+    comment entry[:comment]
+  end
 end
