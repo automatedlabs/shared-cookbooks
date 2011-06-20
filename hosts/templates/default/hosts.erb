@@ -3,6 +3,9 @@
 # If you need to add an address, put it in /etc/hosts.local and run the chef-client
 # vim:set noexpandtab:
 127.0.0.1	localhost.localdomain	localhost
+<% if node[:kernel][:modules][:ipv6] %>
+::1 localhost.localdomain localhost
+<% end %>
 <%= node[:ipaddress] %>	<%= node[:fqdn] %>	<%= node[:hostname] %> # Autogenerate from node data
 <% for entry in @entries -%>
 <%= entry[:ip] %>	<%= entry[:fqdn] %>	<%= entry[:aliases].join(" ") %><%= " # #{entry[:comment]}" if entry[:comment] %>
