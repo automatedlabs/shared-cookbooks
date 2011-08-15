@@ -68,6 +68,8 @@ execute "install_nk:#{installer}" do
 end
 
 jvm_settings = []
+jvm_settings << "-Xms#{node[:netkernel][:starting_heap]}"
+jvm_settings << "-Xmx#{node[:netkernel][:max_heap]}"
 jvm_settings << node[:netkernel][:java_opts]
 jvm_settings << "-Dnetkernel.http.frontend.port=#{node[:netkernel][:frontend][:port].to_s}"
 jvm_settings << "-Dnetkernel.http.backend.address=#{node[:netkernel][:backend][:address].to_s}"

@@ -7,8 +7,10 @@ default[:netkernel][:backend][:address] = "localhost"
 default[:netkernel][:backend][:port] = 1060
 
 # PER INSTALL SETTINGS
+default[:netkernel][:starting_heap] = "128m"
+default[:netkernel][:max_heap] = "128m"
 # java options... split into separate params?
-default[:netkernel][:java_opts] = "-Xmx128m -Xms128m -XX:SoftRefLRUPolicyMSPerMB=100"
+default[:netkernel][:java_opts] = "-XX:SoftRefLRUPolicyMSPerMB=100"
 # unattended.install.directory - name of directory in which to install the NK distro (mandatory)
 default[:netkernel][:install_path] = "/opt/netkernel"
 # unattended.install.expand - expand jarred modules (optional "true" - defaults to "false", not expanded)
