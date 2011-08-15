@@ -3,7 +3,7 @@
 # Recipe:: autoconf
 #
 # The MIT License
-# Copyright (c) 2011 Automated Labs, LLC
+# Copyright (c) 2011 Automated Labs, LLC and contributors (see commits)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,24 +24,25 @@
 # THE SOFTWARE.
 #
 
-#remove the role condition if you don't care about staging vs prod
-hosts_from_server = search(:node, "hostname:[* TO *] AND role:#{node[:app_environment]}")
-
-entries = []
-hosts_from_server.each do |host|
-  entry = {:aliases => [host[:hostname]], :fqdn => host[:fqdn], :comment => 'autoconf'}
-  #cloud based, seems ohai 0.6.4 has a 'cloud' flat info, no per-provider section
-  #take first private. Change it if you want something else
-  if host['cloud']
-    entry[:ip] = host['cloud']['private_ips'][0]
-    entries << entry
-  end
+# If the app_environment attribute exists, filter by that, else get all nodes
+if node.attribute? "app_environment"
+  hosts_from_server = search(:node, "hostname:[* TO *] AND role:#{node['app_environment']}")
+else
+  hosts_from_server = search(:node, "*:*")
 end
 
-entries.each do |entry|
-  hosts_entry entry[:fqdn] do
-    ip entry[:ip]
-    aliases entry[:aliases]
-    comment entry[:comment]
+hosts_from_server.each do |host|
+  # If the host is in the cloud, get the private ip
+  if host.attribute? "cloud"
+    ip_addr = host['cloud']['private_ips'][0]
+  else
+    ip_addr = host['ipaddress']
   end
+  
+  hosts_entry host['fqdn'] do
+    ip ip_addr
+    aliases [host['hostname']]
+    comment "added by recipe[hosts::autoconf]"
+  end
+
 end
