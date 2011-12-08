@@ -26,46 +26,7 @@
 
 include_recipe "java"
 
-installer = "/var/chef/downloads/netkernel-#{node[:netkernel][:version]}.jar"
-
-install_cmd = []
-install_cmd << "java"
-install_cmd << "-Dunattended.install.directory=#{node[:netkernel][:install_path]}"
-install_cmd << "-Dunattended.install.expand=true" if node[:netkernel][:expand_jars]
-unless node[:netkernel][:proxy][:hostname].nil?
-  install_cmd << "-Dunattended.install.proxyHost=#{node[:netkernel][:proxy][:hostname]}"
-end
-unless node[:netkernel][:proxy][:port].nil?
-  install_cmd << "-Dunattended.install.proxyPort=#{node[:netkernel][:proxy][:port]}"
-end
-unless node[:netkernel][:proxy][:username].nil?
-  install_cmd << "-Dunattended.install.proxyUsername=#{node[:netkernel][:proxy][:username]}"
-end
-unless node[:netkernel][:proxy][:password].nil?
-  install_cmd << "-Dunattended.install.proxyPassword=#{node[:netkernel][:proxy][:password]}"
-end
-unless node[:netkernel][:proxy][:domain].nil?
-  install_cmd << "-Dunattended.install.proxyNTDomain=#{node[:netkernel][:proxy][:domain]}"
-end
-unless node[:netkernel][:proxy][:computername].nil?
-  install_cmd << "-Dunattended.install.proxyNTWorkstation=#{node[:netkernel][:proxy][:computername]}"
-end
-install_cmd << "-jar #{installer}"
-
-directory "/var/chef/downloads" do
-  action :create
-end
-
-remote_file installer do
-  source node[:netkernel][:install_url]
-  action :create
-  notifies :run, "execute[install_nk:#{installer}]", :immediately
-end
-
-execute "install_nk:#{installer}" do
-  command install_cmd.join(" ")
-  action :nothing
-end
+include_recipe "netkernel::install"
 
 jvm_settings = []
 jvm_settings << "-Xms#{node[:netkernel][:starting_heap]}"
@@ -82,6 +43,14 @@ file File.join(node[:netkernel][:install_path], "bin", "jvmsettings.cnf") do
   group "root"
 end
 
+user node[:netkernel][:user] do
+  comment "NetKernel"
+  system true
+  shell "/bin/false"
+  home node[:netkernel][:install_path]
+end
+
+# Setup init scripts and configure service
 
 init_script = value_for_platform(
   ["centos", "redhat", "suse", "fedora" ] => {
@@ -94,14 +63,14 @@ init_script = value_for_platform(
 
 template init_script do
   source "init_script.erb"
-  mode 755
+  mode "0755"
   owner "root"
   group "root"
 end
 
 template "/etc/default/netkernel" do
   source defaults.erb
-  mode 644
+  mode "0644"
   owner "root"
   group "root"
 end
@@ -109,4 +78,24 @@ end
 service "netkernel" do
   supports [:restart, :status]
   action [:enable, :start]
+end
+
+# Setup and manage log directory under /var/log, linked to INSTALL/log
+
+log_link = File.absolute_path(File.join(node[:netkernel][:install_path], "log"))
+
+directory node[:netkernel][:log_path] do
+  owner node[:netkernel][:user]
+  mode "0755"
+end
+
+unless log_link == node[:netkernel][:log_path]
+  directory log_link do
+    action :delete
+    not_if do File.symlink? log_link end
+  end
+  
+  link log_link do
+    to node[:netkernel][:log_path]
+  end
 end
