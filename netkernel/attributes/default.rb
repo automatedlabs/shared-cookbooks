@@ -6,6 +6,9 @@ default[:netkernel][:frontend][:port] = 8080
 default[:netkernel][:backend][:address] = "localhost"
 default[:netkernel][:backend][:port] = 1060
 
+default[:netkernel][:user] = "netkernel"
+default[:netkernel][:log_path] = "/var/log/netkernel"
+
 # PER INSTALL SETTINGS
 default[:netkernel][:starting_heap] = "128m"
 default[:netkernel][:max_heap] = "128m"

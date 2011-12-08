@@ -81,3 +81,32 @@ file File.join(node[:netkernel][:install_path], "bin", "jvmsettings.cnf") do
   owner "root"
   group "root"
 end
+
+
+init_script = value_for_platform(
+  ["centos", "redhat", "suse", "fedora" ] => {
+    "default" => "/etc/init.d/netkernel"
+  },
+  ["ubuntu", "debian"] => {
+    "default" => "/etc/init/netkernel.conf"
+  }
+)
+
+template init_script do
+  source "init_script.erb"
+  mode 755
+  owner "root"
+  group "root"
+end
+
+template "/etc/default/netkernel" do
+  source defaults.erb
+  mode 644
+  owner "root"
+  group "root"
+end
+
+service "netkernel" do
+  supports [:restart, :status]
+  action [:enable, :start]
+end

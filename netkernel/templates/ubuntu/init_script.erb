@@ -1,0 +1,39 @@
+# netkernel
+#
+# cron is a standard UNIX program that runs user-specified programs at
+# periodic scheduled times
+
+description     "NetKernel Application Engine"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+
+env DEFAULTFILE=/etc/default/netkernel
+kill timeout 60
+
+pre-start script
+    . "$DEFAULTFILE"
+    chown -R $NK_USER $INSTALLPATH || true
+    chown -R $NK_USER $LOG_DIR || true
+end script
+
+script
+    . "$DEFAULTFILE"
+    sudo -u $NK_USER java $JVMSETTINGS $PROP $SUN_PROPS $PID -cp "$BOOTLOADER_JAR" BootLoader "$INSTALLPATH" 2>&1 >/tmp/nk
+end script
+
+post-start script
+    . "$DEFAULTFILE"
+    local starttime=`date +"%s"`
+    while ! wget --tries=1 --timeout=1 --server-response -O - "$POLLURL" 2>&1 | grep -qai " HTTP/1.1 " ; do
+        sleep 3
+        local now=`date +"%s"`
+        if [ $(($now - 50)) -gt $starttime ]; then
+                logger $0 "NK did not start in time (50 seconds)... exiting..."
+                stop 
+                exit 0 
+        fi
+    done
+end script

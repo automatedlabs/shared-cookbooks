@@ -1,0 +1,15 @@
+INSTALLPATH='<%= node[:netkernel][:install_path] %>'
+NK_USER='<%= node[:netkernel][:user] %>'
+BACKENDPORT="<%= node[:netkernel][:backend][:port] %>"
+LOG_DIR="<%= node[:netkernel][:log_path] %>"
+
+LIB="$INSTALLPATH/lib"
+EXT="$INSTALLPATH/lib/ext"
+PROPS="-Djava.endorsed.dirs=$LIB/endorsed -Djava.protocol.handler.pkgs=org.ten60.netkernel.protocolhandler -Djava.awt.headless=false"
+SUN_PROPS="-Dsun.net.client.defaultConnectTimeout=20000 -Dsun.net.client.defaultReadTimeout=20000"
+PID="-Dten60.pid=1"   #Process id must be set when using 'netkernel' daemon
+STOP_CMD="http://localhost:$BACKENDPORT/tools/shutdown?action2=force"
+POLLURL="http://localhost:$BACKENDPORT"
+    
+read BOOTLOADER_JAR < "$INSTALLPATH/bin/bootjar.cnf" || true
+read JVMSETTINGS < "$INSTALLPATH/bin/jvmsettings.cnf" || true
