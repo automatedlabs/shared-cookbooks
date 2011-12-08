@@ -41,6 +41,7 @@ file File.join(node[:netkernel][:install_path], "bin", "jvmsettings.cnf") do
   mode "0644"
   owner "root"
   group "root"
+  notifies :restart, "service[apache]"
 end
 
 user node[:netkernel][:user] do
@@ -75,11 +76,6 @@ template "/etc/default/netkernel" do
   group "root"
 end
 
-service "netkernel" do
-  supports [:restart, :status]
-  action [:enable, :start]
-end
-
 # Setup and manage log directory under /var/log, linked to INSTALL/log
 
 log_link = File.absolute_path(File.join(node[:netkernel][:install_path], "log"))
@@ -99,3 +95,11 @@ unless log_link == node[:netkernel][:log_path]
     to node[:netkernel][:log_path]
   end
 end
+
+# Start service
+
+service "netkernel" do
+  supports [:restart, :status]
+  action [:enable, :start]
+end
+
